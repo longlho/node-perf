@@ -1,0 +1,29 @@
+{
+  "name": "node-perf",
+  "version": "0.1.0",
+  "description": "NodeJS performance monitoring",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/longlho/node-perf.git"
+  },
+  "keywords": [
+    "node",
+    "performance"
+  ],
+  "author": "Long Ho",
+  "license": "BSD",
+  "readmeFilename": "README.md",
+  "gitHead": "3cd6021964f0a454c9216fc5be5597a3bef7a2e5",
+  "dependencies": {
+    "underscore": "latest",
+    "node-statsd": "latest"
+  },
+  "devDependencies": {
+    "mocha": "latest",
+    "connect": "latest"
+  }
+}
