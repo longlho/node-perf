@@ -1,3 +1,1 @@
-module.exports = {
-	PerformanceMiddleware: require('./src/PerformanceMiddleware')
-};
+module.exports = require('./src/nperf');

@@ -1,6 +1,8 @@
 (function () {
 
   var events = require('events')
+    , util = require('util')
+    , StatsD = require('node-statsd').StatsD
     , os = require('os')
     , _ = require('underscore')._;
 
@@ -8,26 +10,24 @@
     events.EventEmitter.call(this);
     var self = this;
     // Configuration, logistic stuff
-    this.settings = {
-      interval: 1000 * 60 // 1 min
+    this.settings = _.extend({
+      interval: 1000 * 60, // 1 min
       statsd: {
         host: 'localhost',
         port: 8125,
         prefix: 'nperf'
       }
-    };
+    }, opts);
 
     // Handle configuration changes
-    this.on('changed:configuration', function (settings) {
-      clearInterval(self._timer);
-      self._timer = setInterval(self.run, self.settings.interval);
-    });
+    this.on('changed:configuration', this.run.bind(this));
 
-    this._timer = setInterval(this.run.bind(this), this.settings.interval);
     this._metrics = new StatsD(this.settings.statsd.host, this.settings.statsd.port, this.settings.statsd.prefix);
-    this._metrics.socket.on('error', this.emit.bind(this, 'error');
+    
+    this.emitErrors = this.emit.bind(this, 'error');
+    this._metrics.socket.on('error', this.emitErrors);
       
-    process.on('uncaughtException', this.emit.bind(this, 'error'));
+    this.run();
   };
 
   util.inherits(Performance, events.EventEmitter);
@@ -37,24 +37,36 @@
     this.emit('changed:configuration', this.settings);
   };
 
-  Performance.prototype.run = function () {
+  Performance.prototype.collect = function () {
     this._metrics.gauge('process.uptime', process.uptime());
     this._metrics.gauge('process.heapUsed', process.memoryUsage().heapUsed);
   };
 
   // Returns a Connect middleware
-  Performance.prototype.getMiddleware = function (req, res, next) {
-    var start = process.hrtime()
-      , self = this;
-    this._metrics.increment('requests');
-    this._metrics.increment('requests.current');
-    res.on('header', function () {
-      self._metrics.decrement('requests.current');
-      self._metrics.timing('responseTime', process.hrtime(start)[0]);
-    });
-    return next();
+  Performance.prototype.getMiddleware = function () {
+    var self = this;
+    return function (req, res, next) {
+      var start = process.hrtime();
+      self._metrics.increment('requests');
+      self._metrics.increment('requests.current');
+      res.on('header', function () {
+        self._metrics.decrement('requests.current');
+        self._metrics.timing('responseTime', process.hrtime(start)[0]);
+      });
+      return next();
+    };
   };
 
+  Performance.prototype.run = function () {
+    this.stop();
+    this._timer = setInterval(this.collect.bind(this), this.settings.interval);
+    process.on('uncaughtException', this.emitErrors);
+  };
+
+  Performance.prototype.stop = function () {
+    this._timer && clearInterval(this._timer);
+    process.removeListener('uncaughtException', this.emitErrors);
+  };
 
   module.exports = Performance;
 })();
