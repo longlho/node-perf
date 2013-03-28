@@ -17,7 +17,9 @@
 	var app = connect()
 		.use(perf.getMiddleware())
 		.use(function (req, res) {
-			res.end(JSON.stringify({ time: new Date() }));
+			setTimeout(function () {
+				res.end(JSON.stringify({ time: new Date() }));	
+			}, Math.random() * 100);
 		})
 		.listen(3000);
 

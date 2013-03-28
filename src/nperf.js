@@ -54,12 +54,17 @@
   Performance.prototype.getMiddleware = function () {
     var self = this;
     return function (req, res, next) {
-      var start = process.hrtime();
+      var start = Date.now();
       self._metrics.increment('requests.total');
       self._metrics.increment('requests.current');
+
+      //Avoid rebinding on response object reuse
+      if (res._timings) return next();
+      res._timings = true;
+      
       res.on('header', function () {
         self._metrics.decrement('requests.current');
-        self._metrics.timing('responses.time', process.hrtime(start)[0]);
+        self._metrics.timing('responses.time', Date.now() - start);
       });
       return next();
     };
