@@ -6,6 +6,7 @@
     , os = require('os');
 
   var _extend = function (def, opts) {
+    if (!opts) return def;
     var res = {};
     for (var k in def) {
       res[k] = opts[k] || def[k];
@@ -58,7 +59,7 @@
       self._metrics.increment('requests.current');
       res.on('header', function () {
         self._metrics.decrement('requests.current');
-        self._metrics.timing('responseTime', process.hrtime(start)[0]);
+        self._metrics.timing('responses.time', process.hrtime(start)[0]);
       });
       return next();
     };

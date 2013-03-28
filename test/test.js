@@ -86,10 +86,10 @@ describe('Node-Performance', function () {
 		it('should collect stats every sec by default', function (done) {
 			http.get('http://localhost:3000/', function (res) {
 				assert.strictEqual(stats.length, 4, 'should collect 4 request stats');
-				assert.deepEqual(stats[0], ['requests'], '1st is request count');
+				assert.deepEqual(stats[0], ['requests.total'], '1st is request count');
 				assert.deepEqual(stats[1], ['requests.current'], '2nd is current request count');
 				assert.deepEqual(stats[2], ['requests.current'], '3rd is current request count');
-				assert.strictEqual(stats[3][0], 'responseTime', '4th is responseTime');
+				assert.strictEqual(stats[3][0], 'responses.time', '4th is responseTime');
 				assert(stats[3][1]);
 				done();
 			});
