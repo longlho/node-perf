@@ -19,10 +19,10 @@
   "readmeFilename": "README.md",
   "gitHead": "3cd6021964f0a454c9216fc5be5597a3bef7a2e5",
   "dependencies": {
-    "underscore": "latest",
     "node-statsd": "latest"
   },
   "devDependencies": {
+    "underscore": "latest",
     "mocha": "latest",
     "connect": "latest"
   }

@@ -3,14 +3,21 @@
   var events = require('events')
     , util = require('util')
     , StatsD = require('node-statsd').StatsD
-    , os = require('os')
-    , _ = require('underscore')._;
+    , os = require('os');
+
+  var _extend = function (def, opts) {
+    var res = {};
+    for (var k in def) {
+      res[k] = opts[k] || def[k];
+    }
+    return res;
+  };
 
   var Performance = function (opts) {
     events.EventEmitter.call(this);
     var self = this;
     // Configuration, logistic stuff
-    this.settings = _.extend({
+    this.settings = _extend({
       interval: 1000 * 60, // 1 min
       statsd: {
         host: 'localhost',
@@ -33,7 +40,7 @@
   util.inherits(Performance, events.EventEmitter);
 
   Performance.prototype.configure = function (opts) {
-    this.settings = _.extend(this.settings, opts);
+    this.settings = _extend(this.settings, opts);
     this.emit('changed:configuration', this.settings);
   };
 
@@ -47,7 +54,7 @@
     var self = this;
     return function (req, res, next) {
       var start = process.hrtime();
-      self._metrics.increment('requests');
+      self._metrics.increment('requests.total');
       self._metrics.increment('requests.current');
       res.on('header', function () {
         self._metrics.decrement('requests.current');
