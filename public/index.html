@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Node Performance</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+
+    <style>
+
+			svg {
+			  font: 10px sans-serif;
+			}
+
+			.axis path,
+			.axis line {
+			  fill: none;
+			  stroke: #000;
+			  shape-rendering: crispEdges;
+			}
+
+			.x.axis path {
+			  display: none;
+			}
+
+			.line {
+			  fill: none;
+			  stroke: steelblue;
+			  stroke-width: 1.5px;
+			}
+
+		</style>
+	</head>
+	<body>
+		<div class="navbar">
+		  <div class="navbar-inner">
+		    <a class="brand" href="#">Node Performance</a>
+		    <ul class="nav">
+		      <li class="active"><a href="#">Link</a></li>
+		      <li><a href="#">Link</a></li>
+		      <li><a href="#">Link</a></li>
+		    </ul>
+		  </div>
+		</div>
+
+		<section id='responseTimeMedian'>
+		</section>
+
+		<script src="http://code.jquery.com/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="js/graph.js"></script>
+    <script type="text/javascript">
+    	var getOpts = function (opts) {
+    		return $.extend({
+	    		from: '-2hours',
+	    		until: 'now',
+	    		target: [
+	    			'stats.timers.nperf.responses.time.median', 
+	    			'stats.gauges.nperf.process.heapUsed',
+	    			'stats.gauges.nperf.process.uptime',
+	    			'stats.nperf.requests.current',
+	    			'stats.nperf.requests.total'
+	    		],
+	    		format: 'json'
+	    	}, { uniq: Math.random() }, opts);
+    	};
+    	var poll = function () {
+    		$.ajax({
+	    		dataType: 'jsonp',
+	    		url: 'http://ec2-54-224-116-156.compute-1.amazonaws.com:8080/render',
+	    		data: getOpts(),
+	    		traditional: true,
+	    		jsonp: 'jsonp',
+	    		success: function (data) {
+	    			graph.redraw(data[1].datapoints);
+	    		}
+	    	});
+    	};
+    	var graph = new Graph([], {
+    		id: '#responseTimeMedian',
+    		yLabel: 'Heap Used (B)'
+    	});
+    	poll();
+    	setInterval(poll, 5000);
+    </script>
+	</body>
+</html>
