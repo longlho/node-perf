@@ -3,7 +3,7 @@
 	var Graph = function (data, opts) {
 		this.settings = $.extend({
 			margin: { top: 20, right: 20, bottom: 30, left: 100 },
-			width: 890,
+			width: 690,
 			height: 450,
 			xLabel: 'Time',
 			yLabel: '',
@@ -20,6 +20,7 @@
 		    width = this.settings.width,
 		    height = this.settings.height;
 
+		//Kinda misleading since domain is actually range [min, max]
 		var x = this.x = d3.time.scale()
 			.domain(d3.extent(data, function (d) { return d[1]; }))
 			.range([0, width]);
@@ -47,6 +48,11 @@
 		  .append("g")
 		    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+		this.svg.append('path')
+	  	.datum(data)
+	  	.attr('class', 'area')
+	  	.attr('d', this.area);
+
 	  this.svg.append("g")
 	      .attr("class", "x axis")
 	      .attr("transform", "translate(0," + height + ")")
@@ -54,11 +60,6 @@
 	    .append('text')
 	    	.style("text-anchor", "start")
 	    	.text(this.settings.xLabel);
-
-	  this.svg.append('path')
-	  	.datum(data)
-	  	.attr('class', 'area')
-	  	.attr('d', this.area);
 
 	  this.svg.append("g")
 	      .attr("class", "y axis")
@@ -73,6 +74,8 @@
 
 	Graph.prototype.redraw = function (data) {
 		if (!this.svg) return this.draw(data);
+
+		//Recaliber x and y domain range
 		this.x
 			.domain(d3.extent(data, function (d) { return d[1]; }))
 			.range([0, this.settings.width]);
@@ -81,11 +84,12 @@
 			.domain(d3.extent(data, function(d) { return d[0]; }))
 			.range([this.settings.height, 0]);
 
+		//Update with animation
 		var graph = d3.select(this.settings.id).transition();
 
 		graph.select('.area').attr('d', this.area(data));
-		graph.select('.x.axis').duration(750).call(this.xAxis);
-		graph.select('.y.axis').duration(750).call(this.yAxis);
+		graph.select('.x.axis').duration(500).call(this.xAxis);
+		graph.select('.y.axis').duration(500).call(this.yAxis);
 	};
 
 	this.Graph = Graph;
