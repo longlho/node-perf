@@ -23,10 +23,8 @@
 			  display: none;
 			}
 
-			.line {
-			  fill: none;
-			  stroke: steelblue;
-			  stroke-width: 1.5px;
+			.area {
+			  fill: steelblue;
 			}
 
 		</style>
@@ -46,6 +44,7 @@
 		<section id='responseTimeMedian'>
 		</section>
 
+		<script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
 		<script src="http://code.jquery.com/jquery.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -53,7 +52,7 @@
     <script type="text/javascript">
     	var getOpts = function (opts) {
     		return $.extend({
-	    		from: '-2hours',
+	    		from: '-10minutes',
 	    		until: 'now',
 	    		target: [
 	    			'stats.timers.nperf.responses.time.median', 
